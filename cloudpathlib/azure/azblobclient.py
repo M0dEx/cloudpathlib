@@ -155,7 +155,14 @@ class AzureBlobClient(Client):
             return "dir"
 
         try:
-            self._get_metadata(cloud_path)
+            metadata = self._get_metadata(cloud_path)
+            assert isinstance(metadata, BlobProperties)
+
+            is_folder = metadata.content_settings.content_type is None and metadata.content_settings.content_md5 is None
+
+            if is_folder:
+                return "dir"
+
             return "file"
         except ResourceNotFoundError:
             prefix = cloud_path.blob
